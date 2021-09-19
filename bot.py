@@ -2,6 +2,7 @@ import discord
 from discord.utils import get
 from discord.ext import commands
 import random
+import time
 
 intents = discord.Intents.default()
 intents.members = True  
@@ -33,11 +34,22 @@ async def on_message(message):
         admins = [role for role in message.guild.roles if role.permissions.administrator] #aqui se buscan todos los roles con permiso de administrador
         channel = await message.guild.create_text_channel(f"ticket-{id}")
         renames[channel] = channel
+        await message.channel.send(f"{message.author} tu ticket se ha creado correctamente en {channel.mention}")
+        await channel.send("@here se ha abierto un nuevo ticket")
        
         await channel.set_permissions(message.author, read_messages=True, send_messages=True)
         
-        admins = discord.utils.get(message.guild.roles, id=888569520439037982)
-        await channel.set_permissions(admins, read_messages=True, send_messages=True)
+        try:
+            admins = discord.utils.get(message.guild.roles, id=888569520439037982)
+            await channel.set_permissions(admins, read_messages=True, send_messages=True)
+        except Exception:
+            admins = discord.utils.get(message.guild.roles, id=889155705125359678)
+            await channel.set_permissions(admins, read_messages=True, send_messages=True)
+        
+        for role in message.guild.roles:
+            if role.id != 888569520439037982 and role.id != 889155705125359678:
+                await channel.set_permissions(role, read_messages=False, send_messages=False)
+        
 
         
         
@@ -45,9 +57,8 @@ async def on_message(message):
 
  
             
-        no_admins = [role for role in message.guild.roles if not role.permissions.administrator]
-        for no_admin in no_admins: # todos los admins no pueden leer y escribir mensajes
-            await channel.set_permissions(no_admin, read_messages=False, send_messages=False)
+
+        
     
     if message.content.startswith("-add"): # le pone el rol del ticket a la persona que se menciona
         persona = await message.guild.fetch_member(int(message.content[5: ]))
@@ -62,6 +73,7 @@ async def on_message(message):
         channel = message.channel
         try:
             channel = renames.pop(channel)
+            time.sleep(random.randint(10, 20))
             await channel.delete()
         except Exception:
             pass
@@ -91,4 +103,4 @@ async def on_message(message):
 
 
 
-bot.run("ODg5MTM1NTgxNzAxOTk2NTc1.YUc2Cg.WW9N7SjeKcVN79BCjfetKn_de6c")
+bot.run("TOKEN")
